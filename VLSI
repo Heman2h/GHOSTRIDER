@@ -61,7 +61,7 @@ gui_show
 
 create_clock -name clk -period 2 [get_ports "clk"]
 set_input_delay -clock clk 0.8 [all inputs]
-set_output-delay -clock clk 0.8 [all_outputs]
+set_output_elay -clock clk 0.8 [all_outputs]
 set_input_transition 0.1 [all_inputs]
 set_load 0.2 [all_outputs]
 
@@ -129,16 +129,16 @@ set_input_delay -max 0.2 [all_inputs]
 set_output_delay -max 0.2 [all_outputs]
 set_input_transition 0.1 [all_inputs]
 set_max_capacitance 0.1 [get_ports]
-set_load 20 [all outputs]
+set_load 20 [all_outputs]
 set_max_fanout 20 [current_design]
 
 
 //D FlipFlop
 
-module dff (Q.Qbar,D,clk, rst);
+module dff (Q.Qbar,D,clk,rst);
 output reg 0:
 output Qbar;
-input D,clk, rst;
+input D,clk,rst;
 always@(posedge clk)
 begin
 if(rst=1'b1)
@@ -173,7 +173,8 @@ $finish;
 end
 endmodule
 
-b / .lef Library { /hone/install/FOUNDRY/digital/45mm/dig/lef/gsclib045 tech_lef /home/install/FOUNDRY/digital/dig/lef/gsclib045 macro_lef }
+read_libs {/home/install/FOUNDRY/digital/45nn/dig/lib/slow.lib}
+set_db / .lef Library { /hone/install/FOUNDRY/digital/45mm/dig/lef/gsclib045 tech_lef /home/install/FOUNDRY/digital/dig/lef/gsclib045 macro_lef }
 set DESIGN dff
 read_hdl "dflipflop.v"
 elaborate $DESIGN
@@ -195,7 +196,72 @@ gui_show
 
 
 create_clock -name clk -period 2 [get_ports "clk"]
-set_input_delay -clock clk 0.8 [all inputs]
-set_output-delay -clock clk 0.8 [all_outputs]
+set_input_delay -clock clk 0.8 [all_inputs]
+set_output_delay -clock clk 0.8 [all_outputs]
 set_input_transition 0.1 [all_inputs]
 set_load 0.2 [all_outputs]
+
+
+//D latch
+
+module dlatch (Q.Qbar,D,en,rst);
+output reg 0:
+output Qbar;
+input D,en,rst;
+always@(en or D or reset)
+begin
+if (reset =1'b1)
+Q<=1'b0;
+else if(en==1'b1)
+Q<=D;
+else
+Q<=Q
+end
+assign Qbar=~Q;
+endmodule
+
+
+module dlatch_tb;
+wire Q; 
+wire Qbar;
+reg D, en, reset;
+dlatch ul(Q,Qbar,D,en,reset);
+initial 
+begin
+D=1'b0;en=1'b1; reset=1'b1;
+#20 reset=1'b0;
+D=1'b1;
+#20 D=1'b0;
+#20 en=1'b0; D=1'b1;
+#40 $finish;
+end
+endmodule
+
+read_libs {/home/install/FOUNDRY/digital/45nn/dig/lib/slow.lib}
+set_db / .lef Library { /hone/install/FOUNDRY/digital/45mm/dig/lef/gsclib045 tech_lef /home/install/FOUNDRY/digital/dig/lef/gsclib045 macro_lef }
+set DESIGN dlatch
+read_hdl "dlatch.v"
+elaborate $DESIGN
+check_design -unresolved
+read_sdc constraints.sdc
+set_db syn_generic_effort medium
+set_db syn_map_effort medium
+set_db syn_opt_effort medium
+syn_generic
+syn_map
+syn_opt
+report_area > area.rpt
+report_power > power.rpt
+report_gates > gates.rpt
+report_timing > timing.rpt
+write_hdl > netlist.v
+write_sdc > block.sdc
+gui_show
+
+set_input_delay -max 0.2 [all_inputs]
+set_output_delay -max 0.2 [all_outputs]
+set_input_transition 0.1 [all_inputs]
+set_max_capacitance 0.1 [get_ports]
+set_load 20 [all_outputs]
+set_max_fanout 20 [current_design]
+
