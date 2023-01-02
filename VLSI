@@ -258,10 +258,10 @@ write_hdl > netlist.v
 write_sdc > block.sdc
 gui_show
 
-set_input_delay -max 0.2 [all_inputs]
-set_output_delay -max 0.2 [all_outputs]
-set_input_transition 0.1 [all_inputs]
-set_max_capacitance 0.1 [get_ports]
-set_load 20 [all_outputs]
+set_input_delay -max 0.25 [all_inputs]
+set_output_delay -max 0.25 [all_outputs]
+set_input_transition 0.2 [all_inputs]
+set_max_capacitance 20 [get_ports]
+set_load 0.1 [all_outputs]
 set_max_fanout 20 [current_design]
 
