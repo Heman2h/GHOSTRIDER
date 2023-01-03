@@ -8,9 +8,9 @@ begin
 if(!rst)
 count=0;
 else if(m)
-count=count-1;
+count=count+1;
 else
-Count=count+1;
+Count=count-1;
 end
 endmodule
   
@@ -643,6 +643,7 @@ report_timing -unconstrined > timing.rpt
 write_hdl > netlist.v
 write_sdc > block.sdc
 gui_show
+
 
 set_input_delay -max 0.2 [get_ports "a"] 
 et_input_delay -max 0.2 [get_ports "b"]
