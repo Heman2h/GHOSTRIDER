@@ -265,3 +265,63 @@ set_max_capacitance 20 [get_ports]
 set_load 0.1 [all_outputs]
 set_max_fanout 20 [current_design]
 
+
+//SR flipflop
+
+module srff (S,R,clk,Q,obar);
+input S,R,clk;
+output Q,Qbar;
+reg M,N;
+always@(posedge clk)
+begin
+M<=! (S & clk);
+Nee! (R & clk);
+end assign Q=! (M & Qbar);
+assign Qbar=! (N & Q);
+endmodule
+
+module srff_tb;
+reg S,R,clk;
+wire Q,Qbar;
+srff ul(S,R,clk,Q,Qbar);
+always #10 clk=~clk;
+initial
+begin
+clk=1'b0;
+S=1'b0; R=1'b0;
+#20 S=1'b0; R=1'b1;
+#20 S=1'b1; R=1'b0;
+#20 S=1'b0; R=1'b0;
+#20 S=1'b1; R=1'b1;
+#20 S=1'b0; R=1'b1;
+end
+initial
+#300 $finish;
+endmodule
+
+read_libs {/home/install/FOUNDRY/digital/45nn/dig/lib/slow.lib}
+set_db / .lef Library { /hone/install/FOUNDRY/digital/45mm/dig/lef/gsclib045 tech_lef /home/install/FOUNDRY/digital/dig/lef/gsclib045 macro_lef }
+set DESIGN srff
+read_hdl "srff.v"
+elaborate $DESIGN
+check_design -unresolved
+read_sdc constraints.sdc
+set_db syn_generic_effort medium
+set_db syn_map_effort medium
+set_db syn_opt_effort medium
+syn_generic
+syn_map
+syn_opt
+report_area > area.rpt
+report_power > power.rpt
+report_gates > gates.rpt
+report_timing > timing.rpt
+write_hdl > netlist.v
+write_sdc > block.sdc
+gui_show
+
+create_clock -name clk -period 2 [get_ports "clk"]
+set_input_delay -clock clk 0.8 [all_inputs]
+set_output_delay -clock clk 0.8 [all_outputs]
+set_input_transition 0.1 [all_inputs]
+set_load 0.2 [all_outputs]
