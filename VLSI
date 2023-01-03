@@ -275,7 +275,7 @@ reg M,N;
 always@(posedge clk)
 begin
 M<=! (S & clk);
-Nee! (R & clk);
+N<=! (R & clk);
 end assign Q=! (M & Qbar);
 assign Qbar=! (N & Q);
 endmodule
@@ -648,3 +648,5 @@ gui_show
 set_input_delay -max 0.2 [get_ports "a"] 
 et_input_delay -max 0.2 [get_ports "b"]
 set_output_delay -max 0.2 [get_ports "y"]
+
+
